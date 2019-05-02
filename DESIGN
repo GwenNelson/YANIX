@@ -1,0 +1,14 @@
+kernel components:
+	sysinit
+		Sets up basic memory map + modules etc (multiboot)
+		Gets configuration information, command line etc
+	plat
+		Platform drivers
+		On x86, set up IDT,GDT etc
+	plat/debug
+		Drivers for the debug console on each platform
+	pmm
+		Maintains physical memory map + allocator
+	vmm
+		Configures virtual memory spaces
+			Each virtual memory space consists of a linked list of VM objects
