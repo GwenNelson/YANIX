@@ -28,7 +28,7 @@ run-qemu: all
 	$(QEMU_CMD) -kernel $(SYSROOT)/boot/kernel.elf 
 
 run-qemu-tests: tests
-	$(QEMU_CMD) -device isa-debug-exit -kernel $(SYSROOT)/boot/test-kernel.elf;\
+	$(QEMU_CMD) $(QEMU_TEST_FLAGS) -kernel $(SYSROOT)/boot/test-kernel.elf;\
 		if [ $$? -eq 1 ]; then \
 			exit 0; \
 		else \

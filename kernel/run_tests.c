@@ -1,7 +1,7 @@
 #include <yanix/kprintf.h>
-#include <yanix/x86/portio.h>
 #include <yanix/pmm.h>
 #include <yanix/memlayout.h>
+#include <yanix/arch/qemu_exit.h>
 
 #define QEMU_EXIT_SUCCESS 0x00
 #define QEMU_EXIT_FAILED  0x01
@@ -31,9 +31,9 @@ void run_tests() {
 	kprintf("Ran %d tests, %d passed, %d failed\n", total_tests, passed_tests, failed_tests);
 
 	if(failed_tests > 0) {
-		outb(QEMU_EXIT_PORT,QEMU_EXIT_FAILED);
+		qemu_exit_fail();
 	} else { 
-		outb(QEMU_EXIT_PORT,QEMU_EXIT_SUCCESS);;
+		qemu_exit_ok();
 	}
 
 }
