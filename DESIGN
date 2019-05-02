@@ -5,8 +5,7 @@ kernel components:
 	plat
 		Platform drivers
 		On x86, set up IDT,GDT etc
-	plat/debug
-		Drivers for the debug console on each platform
+
 	pmm
 		Maintains physical memory map + allocator
 	vmm
