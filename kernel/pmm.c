@@ -23,7 +23,7 @@ void unset_page(uint32_t page_no) {
 void init_pmm(uintptr_t mem_pool_start, size_t mem_pool_size) {
 	__builtin_memset(&pages_bmap,1,sizeof(pages_bmap));
 	for(uintptr_t i=mem_pool_start; i<mem_pool_start+mem_pool_size; i+=PAGESIZE) {
-		unset_page(i);
+		unset_page(i/PAGESIZE);
 	}
 }
 
