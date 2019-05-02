@@ -22,13 +22,13 @@ void unset_page(uint32_t page_no) {
 
 void init_pmm(uintptr_t mem_pool_start, size_t mem_pool_size) {
 	__builtin_memset(&pages_bmap,1,sizeof(pages_bmap));
-	for(uintptr_t i=mem_pool_start; i<mem_pool_start+mem_pool_size; i+=PAGESIZE) {
+	for(uintptr_t i=mem_pool_start; i<mem_pool_start+(mem_pool_size-PAGESIZE); i+=PAGESIZE) {
 		unset_page(i/PAGESIZE);
 	}
 }
 
 size_t get_free_mem() {
-	return 0;
+	return pages_free*PAGESIZE;
 }
 
 uintptr_t alloc_page() {
