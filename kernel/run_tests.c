@@ -3,9 +3,7 @@
 #include <yanix/memlayout.h>
 #include <yanix/arch/qemu_exit.h>
 
-#define QEMU_EXIT_SUCCESS 0x00
-#define QEMU_EXIT_FAILED  0x01
-#define QEMU_EXIT_PORT    0x501
+
 
 #define TEST(desc,f) kprintf("Testing: %s \t",desc); if(f()==0) { passed_tests++; kprintf("PASS\n");} else { failed_tests++; kprintf("FAIL\n");}; total_tests++;
 
