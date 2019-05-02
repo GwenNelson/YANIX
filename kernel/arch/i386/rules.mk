@@ -1,5 +1,7 @@
 ARCH_KERNEL_OBJS=$(SRCROOT)/kernel/arch/i386/arch_init.o\
 		 $(SRCROOT)/kernel/arch/i386/gdt.o\
+		 $(SRCROOT)/kernel/arch/i386/idt.o\
+		 $(SRCROOT)/kernel/arch/i386/interrupts.o\
 		 $(SRCROOT)/kernel/arch/i386/gdt_flush.o\
 		 $(SRCROOT)/kernel/arch/i386/tss_flush.o
 

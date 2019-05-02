@@ -7,5 +7,6 @@ void _putchar(char character) {
 
 void plat_init() {
 	init_serial(SERIAL_PORT_COM1);
+	init_pic();
 	kprintf("YANIX\n");
 }
