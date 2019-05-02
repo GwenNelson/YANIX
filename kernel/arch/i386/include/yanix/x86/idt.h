@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <yanix/x86/regs.h>
 
 struct idt_entry_struct
 {
@@ -21,6 +22,7 @@ struct idt_ptr_struct
 typedef struct idt_ptr_struct idt_ptr_t;
 
 void init_idt();
+void set_interrupt_handler(uint8_t vector, void (*handler)(regs_t* r));
 
 typedef struct interrupt_frame_t {
 	uint32_t eip;

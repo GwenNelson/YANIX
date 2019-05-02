@@ -71,8 +71,18 @@ void* isr_list[256] = {&isr0, &isr1, &isr2, &isr3, &isr4, &isr5, &isr6, &isr7,
 		        &isr253,&isr254,&isr255
 };
 
+void default_interrupt_handler(regs_t* r) {
+	kprintf("Got interrupt %d\n", r->interrupt_num);
+}
+
+static void (*interrupt_callbacks[256])(regs_t* r);
+
 void interrupt_handler(x86_regs_t *regs) {
-	kprintf("Got interrupt %d\n", regs->interrupt_num);
+	interrupt_callbacks[regs->interrupt_num](regs);
+}
+
+void set_interrupt_handler(uint8_t vector, void (*handler)(regs_t* r)) {
+	interrupt_callbacks[vector] = handler;
 }
 
 void init_idt() {
@@ -81,8 +91,9 @@ void init_idt() {
      __builtin_memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
 
      int i=0;
-     for(i=0; i<256; i++) idt_set_gate(i, isr_list[i], 0x8, 0x8F);
+     for(i=0; i<256; i++) idt_set_gate(i, (uintptr_t)isr_list[i], 0x8, 0x8F);
+     for(i=0; i<256; i++) interrupt_callbacks[i] = &default_interrupt_handler;
 
 
-     lidt(idt_ptr.base, idt_ptr.limit);
+     lidt((void*)idt_ptr.base, idt_ptr.limit);
 }

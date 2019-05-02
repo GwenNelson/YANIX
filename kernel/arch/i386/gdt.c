@@ -6,6 +6,8 @@ gdt_ptr_t   gdt_ptr;
 extern void* stack_begin;
 extern void* stack_end;
 
+extern void tss_flush();
+
 static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
    gdt_entries[num].base_low    = (base & 0xFFFF);
    gdt_entries[num].base_middle = (base >> 16) & 0xFF;
@@ -60,7 +62,7 @@ void init_gdt() {
      gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
      gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
      gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
-     write_tss(5, 0x10, &stack_end);
+     write_tss(5, 0x10, (uint32_t)&stack_end);
 
      gdt_flush((uint32_t)&gdt_ptr);
      tss_flush();

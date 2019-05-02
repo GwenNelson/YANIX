@@ -1,4 +1,5 @@
 #include <yanix/plat/pc-legacy/serial.h>
+#include <yanix/x86/pic.h>
 #include <yanix/kprintf.h>
 
 void _putchar(char character) {
