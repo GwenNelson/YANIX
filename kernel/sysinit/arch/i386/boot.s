@@ -108,7 +108,7 @@ _start:
 	movl %ecx, %cr3
 
 	# Set up the stack.
-	mov $stack_top, %esp
+	mov $stack_end, %esp
 
 	xor %ebp,%ebp
 	add $0xC0000000, %ebx 
