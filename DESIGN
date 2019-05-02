@@ -11,3 +11,27 @@ kernel components:
 	vmm
 		Configures virtual memory spaces
 			Each virtual memory space consists of a linked list of VM objects
+
+vmm
+	lower layer
+		mmu_page_dir_t
+		mmu_map
+		mmu_unmap
+		mmu_get_mapping
+		mmu_switch_page_dir
+	higher layer
+		vm_space_t
+			contains list of vm_obj_t instances and mmu_page_dir_t
+		vm_obj_t
+			uintptr_t v_start
+			uintptr_t v_end
+			backing
+				another vm_obj_t
+				(eventually) files and devices and such
+				a raw physical memory region
+					uintptr_t p_start
+					uintptr_t p_end
+				dynamically allocated physical pages
+					free_phys flag - if set, physical pages will be freed when this object is freed
+			ref_count
+				freed when 0

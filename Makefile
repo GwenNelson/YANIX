@@ -2,7 +2,15 @@
 .DEFAULT_GOAL := all
 .SUFFIXES: .o .c .s
 
-include make.conf
+FILENAME:=$(lastword $(MAKEFILE_LIST))
+SRCROOT:=$(realpath $(dir $(FILENAME)))
+SYSROOT:=$(SRCROOT)/sysroot
+
+ifndef $(CONFIG)
+	CONFIG:=$(SRCROOT)/configs/i386-pc.conf
+endif
+
+include $(CONFIG)
 
 include kernel/rules.mk
 
