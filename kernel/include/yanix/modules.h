@@ -26,5 +26,8 @@ typedef struct module {
   uintptr_t padding[2];
 } module_t;
 
+#ifdef __APPLE__
+#define run_on_startup __attribute__((__section__("__DATA,__modules"),used))
+#else
 #define run_on_startup __attribute__((__section__("modules"),used))
-
+#endif

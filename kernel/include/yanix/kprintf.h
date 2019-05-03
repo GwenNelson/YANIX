@@ -67,6 +67,8 @@ int kprintf(const char* format, ...);
  * \param format A string that specifies the format of the output
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  */
+#ifndef HOSTED
+__attribute__((__weak__))
 int sprintf(char* buffer, const char* format, ...);
 
 
@@ -78,9 +80,11 @@ int sprintf(char* buffer, const char* format, ...);
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  *         If the formatted string is truncated the buffer size (count) is returned
  */
+__attribute__((__weak__))
 int  snprintf(char* buffer, size_t count, const char* format, ...);
+__attribute__((__weak__))
 int vsnprintf(char* buffer, size_t count, const char* format, va_list va);
-
+#endif
 
 /**
  * printf with output function

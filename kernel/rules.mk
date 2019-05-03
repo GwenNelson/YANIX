@@ -16,11 +16,19 @@ KERNEL_OBJS=\
 TEST_OBJS=\
 	$(SRCROOT)/kernel/run_tests.o
 
-KERNEL_LIBS=-nostdlib -lgcc
+ifeq ($(ARCH),hosted)
+	KERNEL_LIBS=
+else
+	KERNEL_LIBS=-nostdlib -lgcc
+endif
 KERNEL_CPP_FLAGS:=-I$(SRCROOT)/kernel/include $(ARCH_KERNEL_CPPFLAGS)
 KERNEL_C_FLAGS:=$(ARCH_KERNEL_CFLAGS)
 
-KERNEL_BUILD=$(CC) -T $(SRCROOT)/kernel/arch/$(ARCH)/linker.ld -o $@ $(CFLAGS) $(KERNEL_C_FLAGS) $(LDFLAGS) $(KERNEL_OBJS) $(KERNEL_LIBS)
+ifeq ($(ARCH),hosted)
+	KERNEL_BUILD=$(CC) -o $@ $(CFLAGS) $(KERNEL_C_FLAGS) $(LDFLAGS) $(KERNEL_OBJS) $(KERNEL_LIBS)
+else
+	KERNEL_BUILD=$(CC) -T $(SRCROOT)/kernel/arch/$(ARCH)/linker.ld -o $@ $(CFLAGS) $(KERNEL_C_FLAGS) $(LDFLAGS) $(KERNEL_OBJS) $(KERNEL_LIBS)
+endif
 
 
 $(SYSROOT)/boot/kernel.elf: $(KERNEL_OBJS)

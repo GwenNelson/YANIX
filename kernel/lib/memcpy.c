@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+ __attribute__((__weak__))
 void memcpy(void *dest_, const void *src_, uint32_t len)
 {
   uint8_t *dest = dest_;

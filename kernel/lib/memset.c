@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+ __attribute__((__weak__))
 void* memset(void *b, int c, size_t len) {
       uint8_t* buf = (uint8_t*)b;
       size_t i=0;

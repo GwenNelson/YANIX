@@ -5,7 +5,12 @@
 #include <yanix/pmm.h>
 #include <yanix/modules.h>
 
+#ifdef __APPLE__
+extern module_t __start_modules __asm("section$start$__DATA$__modules");
+extern module_t __stop_modules  __asm("section$end$__DATA$__modules");
+#else
 extern module_t __start_modules, __stop_modules;
+#endif
 
 static void earlypanic(const char *msg, const char *msg2);
 static module_t *find_module(const char *name);
@@ -120,8 +125,8 @@ void kmain(yanix_bootinfo_t bootinfo) {
 	plat_init();
 	kprintf("kmain: cmdline=%s\n", bootinfo.cmdline);
 	kprintf("kmain: mem_pool at 0x%p, %dkb\n", bootinfo.mem_pool, bootinfo.mem_pool_size/1024);
-	init_pmm(bootinfo.mem_pool, bootinfo.mem_pool_size);
-	kprintf("kmain: %dkb free\n", get_free_mem()/1024);
+//	init_pmm(bootinfo.mem_pool, bootinfo.mem_pool_size);
+//	kprintf("kmain: %dkb free\n", get_free_mem()/1024);
 	init_modules();
 	run_tests();
 }
