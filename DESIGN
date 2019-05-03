@@ -1,22 +1,58 @@
-kernel components:
-	sysinit
-		Sets up basic memory map + modules etc (multiboot)
-		Gets configuration information, command line etc
-	plat
-		Platform drivers
-		On x86, set up IDT,GDT etc
+sysinit
+	platform/architecture specific setup and boot code
+	gets memory map, configuration, command line etc and passes to kmain as a yanix_bootinfo_t struct
 
-	pmm
-		Maintains physical memory map + allocator
-	vmm
-		Configures virtual memory spaces
-			Each virtual memory space consists of a linked list of VM objects
+arch_init
+	sets up architecture-specific details after boot, things like the IDT and GDT on x86 etc
+
+plat_init
+	sets up platform-specific devices after boot, especially the debug/serial console for kprintf
+
+hosted
+	special arch/platform for testing purposes
+	should include things like a hostfs driver etc
+	simulates physical memory by getting a large mmap buffer from the host OS per page directory
+	address space switches are handled by smaller mmap'ed buffers backed by the larger one
+	system calls are implemented as simple calls
+	threads are implemented in userspace on the host OS, 1 per simulated core
+	timer uses signals via pthread_kill to activate scheduler on each thread
+
+libk
+	various useful things for the kernel, data structures and containers etc, NOT the same as the libc
+	functions under kernel/lib/
+	
+	dequeue
+	ringbuf
+	bitmap
+	vector
+	hash table
+		integers to pointers
+		integers to integers
+		strings to integers
+		strings to pointers
+	generic cache
+		array object that tracks when an entry was last accessed and doesn't grow in size
+		once full, evicts LRU entries
+		uses a hashtable to determine where entries are stored
+		e.g
+			cache key might be a block number for a block device
+			the first empty slot in the array is used to store the block data, and the hashtable is used
+			to map blocknum<>index
+		
+pmm
+	physical memory manager
+	keeps track of free physical pages, allocates and frees them
+	deals only with physical addressing
 
 vmm
 	lower layer
 		mmu_page_directory_t
+			architecture-specific datatype: a struct containing physical address
+			of a page directory
 		mmu_get_page_dir
+			reads the relevant CPU register and gets the current page directory
 		mmu_create_page_dir
+			creates a fresh page directory, automatically adds the kernel mappings
 		mmu_destroy_page_dir
 			the rule is, kernel page tables are never deleted, user page tables are
 			even when doing COW etc on single pages, the page table is allocated fresh to
@@ -24,8 +60,11 @@ vmm
 		mmu_map
 			uses mmu_get_page_dir to map page tables temporarily
 		mmu_unmap
+			unmaps a page (or set of pages), and frees the page tables
 		mmu_get_mapping
+			gets the physical address and flags for a virtual address
 		mmu_switch_page_dir
+			duh
 	higher layer
 		vm_space_t
 			contains list of vm_obj_t instances and mmu_page_dir_t
@@ -42,3 +81,99 @@ vmm
 					free_phys flag - if set, physical pages will be freed when this object is freed
 			ref_count
 				freed when 0
+
+module system
+	allow linking directly into kernel for now, later implement dynamic loading
+	use JMTK-style trick
+	add support for discovering tests automatically for modules
+
+timer interface
+	abstraction layer over actual hardware
+	register a callback to be triggered at a particular frequency
+
+device manager
+	register new instances of devices, have listener callbacks etc
+	assigns device names for use by devfs
+
+bus drivers (heh)
+	enumerate buses (like PCI, USB, etc etc) on the system and register found devices
+	other drivers can register and listen for new devices that might be relevant to them
+	e.g an ethernet card driver would register a callback on the PCI bus
+
+character devices
+	simple blocking read/write interface
+		void write(char_dev_t* dev, size_t count, char* buf)
+			writes count characters from buf, if device isn't ready, will block until everything is written
+		void read(char_dev_t* dev, size_t count, char* buf)
+			reads count characters into buf, if device isn't ready, will block until sufficient characters
+			are available
+	non-blocking interface
+		basically same, but returns a size_t saying how many characters could be read/written
+		if device wasn't ready or could only process some of the data, it returns a value between 0 and count
+
+block devices
+	similar interface to character devices, except with an offset param and all counts must be a multiple of the
+	block size
+
+terminals
+	abstract into layers
+		top layer:    character device that allows reading and writing like normal
+		middle layer: state machine, ANSI or VT100 or whatever
+		bottom layer: platform-specific drivers
+			platform-independent graphical terminal and font rendering
+			platform-specific framebuffer drivers
+
+filesystem / VFS layer
+	rip from JMTK, allow registering filesystem types that can be mounted anywhere in the tree
+	create special default root filesystem which uses RAM (initrd can be implemented by copying initrd data into it)
+
+devfs
+	dynamically represents all known devices, including buses
+	e.g
+		if we have these PCI devices:
+			0x8086:0x1237:Bridge device: Intel Corporation PCI & Memory
+			0x8086:0x7000:Bridge device: Intel Corporation PIIX3 PCI-to-ISA Bridge (Triton II)
+			0x8086:0x7010:Mass storage controller: Intel Corporation PIIX3 IDE Interface (Triton II)
+			0x8086:0x7113:Bridge device: Intel Corporation PIIX4/4E/4M Power Management Controller
+			0x1234:0x1111:Display controller: Technical Corp <null>
+			0x8086:0x100e:Network controller: Intel Corporation Intel Pro 1000/MT
+		then we have this in /dev:
+			.
+			└── pci
+			    ├── 8086
+			    │   ├── 1237
+			    │   ├── 7000
+			    │   ├── 7010
+			    │   ├── 7113
+			    │   └── 100e
+			    └── 1234
+			        └── 1111
+		depending on what kind of device each card is, some of them may be character or block devices that can
+		be opened like regular files - otherwise it's up to the driver to use ioctl to interact with it
+
+processes / threads
+	each process can have multiple threads
+	PID0 is kernel
+	scheduling:
+		4 queues:
+			high priority
+			normal
+			low priority
+			idle
+		scheduler does the following in a loop:
+			run high priority processes for 3 quantums
+			run normal priority processes for 2 quantums
+			run low priority processes for 1 quantum
+			if none of the processes are available to run, select an idle process
+		if a process is blocked and then unblocked while another process of lower priority is active, 
+		immediately switch
+	technically the scheduler actually deals with threads, not whole processes - but threads can never have
+	a higher priority than the process they belong to
+	threads within the same process obviously share the same address space
+
+syscalls + API
+	create syscalls.def with X macros for cross-platform definition
+	syscalls are defined as normal C functions with platform/arch specific glue to handle invocation
+
+libc
+	port an existing one, add custom startup code to grab environment and params etc

@@ -8,6 +8,7 @@ KERNEL_OBJS=\
 	$(ARCH_KERNEL_OBJS)\
 	$(PLAT_KERNEL_OBJS)\
 	$(SYSINIT_KERNEL_OBJS)\
+	$(SRCROOT)/kernel/dummy_mod.o\
 	$(SRCROOT)/kernel/kprintf.o\
 	$(SRCROOT)/kernel/kmain.o\
 	$(SRCROOT)/kernel/pmm.o
