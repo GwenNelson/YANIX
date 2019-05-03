@@ -2,7 +2,7 @@
 
 #define PAGESIZE 0x1000
 
-#define MAX_PHYS_RAM 0x10000000  // 256mb
+#define MAX_PHYS_RAM 0x40000000  // 1GB
 
 #define MAX_PAGES (MAX_PHYS_RAM/PAGESIZE)
 
