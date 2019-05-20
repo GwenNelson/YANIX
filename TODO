@@ -1,0 +1,20 @@
+hosted mmap stuff
+https://stackoverflow.com/questions/25400693/c-linux-dual-map-memory-with-different-permissions
+VMM
+	platform-specific MMU interface and page directory definitions
+		add tests - basic mapping+unmapping and checking for no page faults
+		have the test suite hook the page fault handler and fail if there's a page fault
+	lower layer
+		manipulate+switch page directories
+	higher layer
+		VMM objects
+			each backed by another object, except for a "raw memory" object
+			each object reference counted
+kernel heap
+	lower layer
+		sbrk-style interface to grow/shrink virtual memory allocated to the heap
+	higher layer
+		liballoc
+Define a generic timer interface
+Add PIT support under plat/
+
