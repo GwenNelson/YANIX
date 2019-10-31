@@ -1,6 +1,6 @@
 .PHONY: all clean run-qemu run-qemu-tests tests
 .DEFAULT_GOAL := all
-.SUFFIXES: .o .c .s
+.SUFFIXES: .o .c .s .S
 
 FILENAME:=$(lastword $(MAKEFILE_LIST))
 SRCROOT:=$(realpath $(dir $(FILENAME)))
